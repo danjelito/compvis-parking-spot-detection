@@ -1,23 +1,31 @@
 import cv2 
 import pickle
+import os
 
 # list to hold position of each bbox
-pos_list= []
+path_spot= 'output/spot_position.pickle'
+
+# if pos list file already exist, load that
+# else, create new pos list
+if os.path.exists(path_spot):
+    with open(path_spot, 'rb') as f:
+        pos_list= pickle.load(f)
+else:
+    pos_list= []
 
 def mouse_click(events, x, y, flags, params):
-    if events == cv2.EVENT_LBUTTONUP:
+    if events == cv2.EVENT_LBUTTONDOWN:
         pos_list.append((x, y))
     elif events == cv2.EVENT_RBUTTONDOWN:
         pos_list.pop(-1)
 
     # everytime we click, save position to file
-    path= 'output/spot_position.pickle'
-    with open(path, 'wb') as f:
+    with open(path_spot, 'wb') as f:
         pickle.dump(pos_list, f)
 
 # get image
-path= 'input/image/carpark.png'
-img= cv2.imread(path)
+path_img= 'input/image/carpark.png'
+img= cv2.imread(path_img)
 
 # set bbox size
 delta_x, delta_y= 105, 39
