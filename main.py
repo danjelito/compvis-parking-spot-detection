@@ -21,7 +21,23 @@ def process_img(img):
     return img_dilate
 
 
-def check_parking_spot(pos_list, input_img, output_img, put_text= True):
+def draw_rectangle(pos, img, color):
+    """Draw rectangle in image for every spot."""
+    if isinstance(pos,list):
+        for (x1, y1) in pos:
+            x2= x1 + config.DELTA_X
+            y2= y1 + config.DELTA_Y
+            cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2)    
+    elif isinstance(pos, tuple):
+            x1, y1= pos
+            x2= x1 + config.DELTA_X
+            y2= y1 + config.DELTA_Y
+            cv2.rectangle(img, (x1, y1), (x2, y2), color, 2) 
+
+
+
+def check_parking_spot(pos_list, input_img, output_img, put_text= True,
+                       draw_rec= True):
     """Check if a spot is empty or not."""
     for (x1, y1) in pos_list:
         x2= x1 + config.DELTA_X
@@ -31,21 +47,16 @@ def check_parking_spot(pos_list, input_img, output_img, put_text= True):
         if put_text:
             cv2.putText(output_img, 
                         str(count_nonzero), 
-                        (x1+25, y1+25), 
+                        (x1+25, y1+25),   
                         cv2.FONT_HERSHEY_SIMPLEX, 
-                        0.75, 
+                        0.5, 
                         (255, 255, 255), 
                         2
             )
+        if draw_rec:
+            color= (0, 255, 0) if count_nonzero <= 650 else (0, 0, 255)
+            draw_rectangle((x1, y1), output_img, color)
 
-
-def draw_rectangle(pos_list, img, color):
-    """Draw rectangle in image for every spot."""
-    for (x1, y1) in pos_list:
-        x2= x1 + config.DELTA_X
-        y2= y1 + config.DELTA_Y
-        cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2)    
-    
     
 # get video 
 cap= cv2.VideoCapture(config.VIDEO_PATH)
@@ -78,9 +89,6 @@ while ret:
         frame_processed= process_img(frame)
         check_parking_spot(pos_list, frame_processed, frame)
 
-    # draw rectangle
-    # draw_rectangle(pos_list, frame, (255, 0, 0))
-
     # display video
     window_title= 'press q to quit'
     cv2.namedWindow(window_title, cv2.WINDOW_NORMAL)
@@ -89,7 +97,7 @@ while ret:
 
     frame_num += 1
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(30) & 0xFF == ord('q'):
         break
 
 cap.release()
