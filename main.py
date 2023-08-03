@@ -4,6 +4,29 @@ import numpy as np
 import os
 import config
 
+def check_parking_spot(pos_list, img):
+    """Check if a spot is empty or not, draw bbox."""
+
+    img_gray= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img_blur= cv2.GaussianBlur(img_gray, (3, 3), 1)
+    img_bin= cv2.adaptiveThreshold(
+        img_blur, 
+        255,
+        cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+        cv2.THRESH_BINARY_INV, 
+        25, 
+        16
+    )
+    return img_bin
+
+def draw_rectangle(pos_list, img, color):
+    for (x1, y1) in pos_list:
+        x2= x1 + config.DELTA_X
+        y2= y1 + config.DELTA_Y
+        cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2)    
+    
+        
+
 # get video 
 cap= cv2.VideoCapture(config.VIDEO_PATH)
 
@@ -13,7 +36,7 @@ if os.path.exists(config.PATH_SPOT):
     with open(config.PATH_SPOT, 'rb') as f:
         pos_list= pickle.load(f)
 else:
-    pos_list= [(None,None)]
+    pos_list= None
 
 # loop through each frame of the video
 ret= True
@@ -30,18 +53,18 @@ while ret:
     # read video frame per frame
     ret, frame= cap.read()
 
-    # draw rectangle
-    for (x1, y1) in pos_list:
-        cv2.rectangle(frame, (x1, y1), (x1 + config.DELTA_X, y1 + config.DELTA_Y), (255, 0, 0), 2)    
+    # detect parking spot
+    if pos_list:
+        frame= check_parking_spot(pos_list, frame)
 
-    # detect edge
-    frame_gray= cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # draw rectangle
+    # draw_rectangle(pos_list, frame, (255, 0, 0))
 
     # display video
     window_title= 'press q to quit'
     cv2.namedWindow(window_title, cv2.WINDOW_NORMAL)
     cv2.resizeWindow(window_title, (1280, 720))
-    cv2.imshow(window_title, frame_gray)
+    cv2.imshow(window_title, frame)
 
     frame_num += 1
 
