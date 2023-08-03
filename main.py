@@ -55,13 +55,13 @@ def check_parking_spot(pos_list, input_img, output_img, put_text= True,
                         (x1+25, y1+25),   
                         cv2.FONT_HERSHEY_SIMPLEX, 
                         0.5, 
-                        (255, 255, 255), 
+                        (255, 255, 255),                        
                         2
             )
         threshold= 650
         if draw_rec:
             color= (0, 255, 0) if count_nonzero <= threshold else (0, 0, 255)
-            thickness= 4 if count_nonzero <= threshold else 2
+            thickness= 5 if count_nonzero <= threshold else 3
             draw_rectangle((x1, y1), output_img, color, thickness)
         if count_nonzero <= threshold:
             num_empty += 1
