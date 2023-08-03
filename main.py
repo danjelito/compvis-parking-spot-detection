@@ -1,7 +1,6 @@
 import cv2
-import numpy as np
-import os
-from pathlib import Path
+import pickle
+import c
 
 # get video 
 video_path= 'input/video/parking_1920_1080_loop.mp4'
