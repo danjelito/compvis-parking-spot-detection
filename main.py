@@ -16,6 +16,20 @@ if os.path.exists(config.PATH_SPOT):
 else:
     pos_list= None
 
+# write video if not exist
+if not os.path.exists(config.RESULT_VIDEO_PATH):
+    # create videowriter to save video
+    # so, convert them from float to integer.
+    frame_width = int(cap.get(3))
+    frame_height = int(cap.get(4))
+    size = (frame_width, frame_height)
+    writer = cv2.VideoWriter(config.RESULT_VIDEO_PATH, 
+                            cv2.VideoWriter_fourcc(*'MJPG'),
+                            30, size)
+    write= True
+else:
+    write= False
+
 # loop through each frame of the video
 ret= True
 frame_num= 1
@@ -73,9 +87,13 @@ while ret:
     cv2.resizeWindow(window_title, (1280, 720))
     cv2.imshow(window_title, frame)
 
+    # write video if not yet written
+    if write:
+        writer.write(frame)
+
     frame_num += 1
 
-    if cv2.waitKey(15) & 0xFF == ord('q'):
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
 cap.release()
